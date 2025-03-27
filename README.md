@@ -22,7 +22,9 @@ Auto Script Install XRAY/SSH Websocket Service
 </p>
 
 
-### CLEAR INSTALLER SCRIPT IN YOUR VPS THANKS FOR BIN456789
+### Clear the script installed on your VPS
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Capriola&size=40&duration=4000&pause=450&color=cyan&background=FFFFAA00&center=true&random=false&width=600&height=100&lines=THANKS TO BIN456789!" /></p>
 ### rebuild deb 10 selain do
 
 <pre><code>curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh && bash reinstall.sh Debian 10 && reboot</code></pre>
