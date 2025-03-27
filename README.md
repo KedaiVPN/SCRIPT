@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Capriola&size=40&duration=4000&pause=450&color=F70069&background=FFFFAA00&center=true&random=false&width=600&height=100&lines=KEDAI VPN AUTOSCRIPT !;THE BEST SCRIPT FOR TUNNELING!" /></p>
 
-![IMAGE](https://raw.githubusercontent.com/[diah082/vip/main/autosc.jpg)
+![IMAGE](https://raw.githubusercontent.com/KedaiVPN/qris/main/kedai-vpn.png)
 
 ### CLEAR INSTALLER SCRIPT IN YOUR VPS THANKS FOR BIN456789
 ### rebuild deb 10 selain do
