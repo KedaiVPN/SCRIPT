@@ -14,8 +14,7 @@ Auto Script Install XRAY/SSH Websocket Service
 <img src="https://img.shields.io/static/v1?style=for-the-badge&logo=debian&label=Debian%209&message=Stretch&color=purple"> 
 <img src="https://img.shields.io/static/v1?style=for-the-badge&logo=debian&label=Debian%2010&message=Buster&color=purple">  
 <img src="https://img.shields.io/static/v1?style=for-the-badge&logo=debian&label=Debian%2011&message=bullseye&color=purple"> 
-<p align="center">
-<img src="https://img.shields.io/static/v1?style=for-the-badge&logo=ubuntu&label=ubuntu%2018.04 LTS&message=Bionic Beaver&color=red"> 
+<p align="center"> 
 <img src="https://img.shields.io/static/v1?style=for-the-badge&logo=ubuntu&label=ubuntu%2020.04 LTS&message=Focal Fossa&color=red"> 
   <img src="https://img.shields.io/static/v1?style=for-the-badge&logo=ubuntu&label=ubuntu%2022.04 LTS&message=Jammy Jellyfish&color=red"> 
   <img src="https://img.shields.io/static/v1?style=for-the-badge&logo=ubuntu&label=ubuntu%2024.04 LTS&message=Noble Numbat&color=red"> 
