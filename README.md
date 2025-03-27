@@ -3,9 +3,9 @@
 
 ![IMAGE](https://raw.githubusercontent.com/KedaiVPN/qris/main/kedai-vpn.png)
 
-<h2 align="center">
+<h4 align="center">
 Auto Script Install XRAY/SSH Websocket Service
-<img src="https://img.shields.io/badge/Release-v2.2.7-red.svg"></h2>
+<img src="https://img.shields.io/badge/Release-v2.2.7-red.svg"></h4>
 
 </p> 
 <h2 align="center"> Supported Linux Distribution</h2>
@@ -22,7 +22,7 @@ Auto Script Install XRAY/SSH Websocket Service
 </p>
 
 
-### Clear the script installed on your VPS
+<h3Clear the script installed on your VPS</h3>
 <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Bold&size=40&duration=4000&pause=450&color=cyan&background=FFFFAA00&center=true&random=false&width=600&height=100&lines=THANKS TO BIN456789!" /></p>
 
