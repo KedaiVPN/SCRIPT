@@ -22,7 +22,7 @@ Auto Script Install XRAY/SSH Websocket Service
 </p>
 
 
-<h5> Clear the script installed on your VPS </h5>
+<h4> Clear the script installed on your VPS </h4>
 <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Bold&size=40&duration=4000&pause=450&color=cyan&background=FFFFAA00&center=true&random=false&width=600&height=100&lines=THANKS TO BIN456789!" /></p>
 
