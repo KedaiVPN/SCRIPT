@@ -56,8 +56,8 @@ Auto Script Install XRAY/SSH Websocket Service
 <pre><code>wget -qO /usr/sbin/backupot "https://raw.githubusercontent.com/diah082/vip/main/menu/backupot" && chmod +x /usr/sbin/backupot && backupot</code></pre>
 
 ### TESTED ON OS 
-- UBUNTU 20.04 22 24.04 24.10
-- DEBIAN 10 11 12
+- UBUNTU 20.04 | 22 | 24.04 | 24.10
+- DEBIAN 10 | 11 | 12
 
 ### FITUR TAMBAHAN
 - Lakukan Uji Coba dengan memilih Trial Pada Licensi Key
