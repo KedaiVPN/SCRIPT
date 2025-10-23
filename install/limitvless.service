@@ -1,6 +1,6 @@
 [Unit]
 Description=Limit Usage Xray Service
-Documentation=FighterTunnel
+Documentation=https://t.me/Kedai_VPN
 After=syslog.target network-online.target
 
 [Service]
