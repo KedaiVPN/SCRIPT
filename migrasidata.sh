@@ -23,86 +23,81 @@ echo "==================================================" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 
 # --- PROSES EKSPOR DATA SSH ---
-# Acuan utama user SSH yang masih aktif adalah /etc/passwd
+# Kita ambil list user nyata di OS yang UID-nya >= 1000 dan bukan nobody.
 echo "Ssh" >> "$OUTPUT_FILE"
 printf "%-25s %-25s %-15s %-20s\n" "Username" "Password" "ip limit" "exp" >> "$OUTPUT_FILE"
 
-if [ -f "$SSH_DB" ]; then
-    while IFS= read -r line; do
-        if [[ "$line" == "#ssh#"* ]]; then
-            # Menghapus tag "#ssh# "
-            clean_line=$(echo "$line" | sed 's/#ssh# //')
+if [ -f "/etc/passwd" ]; then
+    # Cari pengguna VPN (biasanya shell /bin/false atau id > 1000)
+    awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | while IFS= read -r username; do
+        # Default nilai jika tidak ada di DB
+        password="Unknown(Hashed)"
+        ip_limit="Unknown"
+        # Ambil tanggal expired dari chage OS
+        exp_date=$(chage -l "$username" 2>/dev/null | grep "Password expires" | awk -F: '{print $2}' | xargs)
+        if [[ "$exp_date" == "never" || -z "$exp_date" ]]; then
+            exp_date="Unlimited"
+        fi
 
-            # Memecah dan mengambil data
-            username=$(echo "$clean_line" | awk '{print $1}')
-
-            # Hanya ekstrak jika username benar-benar terdaftar aktif di OS
-            if id "$username" &>/dev/null; then
-                password=$(echo "$clean_line" | awk '{print $2}')
-                ip_limit=$(echo "$clean_line" | awk '{print $4}')
-                exp_date=$(echo "$clean_line" | awk '{print $5, $6, $7}')
-
-                # Cetak baris data
-                printf "%-25s %-25s %-15s %-20s\n" "$username" "$password" "$ip_limit" "$exp_date" >> "$OUTPUT_FILE"
+        # Coba tarik password dan limit IP aslinya dari .ssh.db bila masih tercatat
+        if [ -f "$SSH_DB" ]; then
+            db_line=$(grep -w "^#ssh# ${username}" "$SSH_DB" | tail -n 1)
+            if [ -n "$db_line" ]; then
+                clean_db=$(echo "$db_line" | sed 's/#ssh# //')
+                password=$(echo "$clean_db" | awk '{print $2}')
+                ip_limit=$(echo "$clean_db" | awk '{print $4}')
             fi
         fi
-    done < "$SSH_DB"
+        
+        printf "%-25s %-25s %-15s %-20s\n" "$username" "$password" "$ip_limit" "$exp_date" >> "$OUTPUT_FILE"
+    done
 else
-    echo "File database SSH ($SSH_DB) tidak ditemukan." >> "$OUTPUT_FILE"
+    echo "Gagal membaca /etc/passwd" >> "$OUTPUT_FILE"
 fi
 echo "" >> "$OUTPUT_FILE"
 
 # --- FUNGSI PROSES EKSPOR DATA XRAY ---
-# Agar mendapat data AKTIF seperti di menu, kita baca daftar user dari config.json
-# Namun kita tarik UUID, Quota, dan Exp dari file database asli (.db)
 process_xray_config() {
     local tag=$1
     local db_file=$2
     local title=$3
-
+    
     echo "$title" >> "$OUTPUT_FILE"
     printf "%-25s %-45s %-15s %-20s\n" "Username" "UUID" "quota" "exp" >> "$OUTPUT_FILE"
-
+    
     if [ -f "$XRAY_CONFIG" ]; then
-        # Cari username yang aktif di config.json
-        grep -E "^[[:space:]]*${tag} " "$XRAY_CONFIG" | while IFS= read -r line; do
-            # Bersihkan spasi dan ambil username (kolom ke-2 dari tag)
-            clean_line=$(echo "$line" | awk '{$1=$1;print}')
-            username=$(echo "$clean_line" | awk '{print $2}')
-
-            # Cari baris user ini di database (.db)
-            # Karena vmess, vless, trojan database memakai format "### username tanggal uuid kuota limit"
-            if [ -f "$db_file" ]; then
-                db_line=$(grep -w "^### ${username}" "$db_file" | head -n 1)
-                if [ -n "$db_line" ]; then
-                    clean_db=$(echo "$db_line" | sed 's/### //')
-                    exp_date=$(echo "$clean_db" | awk '{print $2}')
-                    uuid=$(echo "$clean_db" | awk '{print $3}')
-                    quota=$(echo "$clean_db" | awk '{print $4}')
-
-                    if [[ "$quota" == "0" || -z "$quota" ]]; then
-                        quota_str="Unlimited"
-                    else
-                        quota_str="${quota} GB"
-                    fi
-
-                    printf "%-25s %-45s %-15s %-20s\n" "$username" "$uuid" "$quota_str" "$exp_date" >> "$OUTPUT_FILE"
-                else
-                    # Jika user ada di config.json tapi tidak ada di database
-                    exp_date=$(echo "$clean_line" | awk '{print $3}')
-                    # Coba tarik UUID dari config.json sebagai fallback
-                    uuid=$(grep -A 1 "^[[:space:]]*${tag} ${username}" "$XRAY_CONFIG" | tail -n 1 | grep -oP '(?<="id": ")[^"]+|(?<="password": ")[^"]+')
-                    [ -z "$uuid" ] && uuid="Unknown-UUID"
-                    printf "%-25s %-45s %-15s %-20s\n" "$username" "$uuid" "Unknown" "$exp_date" >> "$OUTPUT_FILE"
-                fi
-            else
-                # Fallback jika file .db tidak ada
-                exp_date=$(echo "$clean_line" | awk '{print $3}')
-                uuid=$(grep -A 1 "^[[:space:]]*${tag} ${username}" "$XRAY_CONFIG" | tail -n 1 | grep -oP '(?<="id": ")[^"]+|(?<="password": ")[^"]+')
-                [ -z "$uuid" ] && uuid="Unknown-UUID"
-                printf "%-25s %-45s %-15s %-20s\n" "$username" "$uuid" "Unknown" "$exp_date" >> "$OUTPUT_FILE"
+        # Ambil unik baris saja (karena 1 user Xray bisa dibuat di beberapa port/inbounds sehingga namanya ganda)
+        grep -E "^[[:space:]]*${tag} " "$XRAY_CONFIG" | awk '{$1=$1;print}' | sort -u | while IFS= read -r line; do
+            
+            # Format di config.json: "TAG Username Exp_Date"
+            username=$(echo "$line" | awk '{print $2}')
+            exp_date=$(echo "$line" | awk '{print $3}')
+            
+            # Cari UUID di baris tepat di bawah baris tag username tersebut
+            uuid=$(grep -A 1 "^[[:space:]]*${tag} ${username}" "$XRAY_CONFIG" | tail -n 1 | grep -oP '(?<="id": ")[^"]+|(?<="password": ")[^"]+')
+            if [ -z "$uuid" ]; then
+                uuid="Unknown-UUID"
             fi
-
+            
+            # Cari informasi kuota dari database mentah
+            quota_str="Unlimited"
+            if [ -f "$db_file" ]; then
+                # Data di vmess.db / trojan.db biasanya menggunakan prefix "###" untuk semua Xray protocols (sejarah script kyt/xray db).
+                # Kita gunakan pola pencarian di kolom 2:
+                db_line=$(grep -w " ${username} " "$db_file" | head -n 1)
+                if [ -n "$db_line" ]; then
+                    # Berdasarkan feedback user: "### TrialVM117 2026-01-21 9ef4601f-... 1 1"
+                    # Maka: $1 = ###, $2 = Username, $3 = ExpDate, $4 = UUID, $5 = Quota, $6 = LimitIP
+                    db_quota=$(echo "$db_line" | awk '{print $5}')
+                    
+                    if [[ -n "$db_quota" && "$db_quota" != "0" ]]; then
+                        quota_str="${db_quota} GB"
+                    fi
+                fi
+            fi
+            
+            # Cetak ke output
+            printf "%-25s %-45s %-15s %-20s\n" "$username" "$uuid" "$quota_str" "$exp_date" >> "$OUTPUT_FILE"
         done
     else
         echo "File konfigurasi Xray ($XRAY_CONFIG) tidak ditemukan." >> "$OUTPUT_FILE"
@@ -111,12 +106,10 @@ process_xray_config() {
 }
 
 # Tag spesifik untuk mencari user di config.json:
-# VMESS  = ###
-# VLESS  = #&
-# TROJAN = #!
+# (Gunakan escape string literal secara benar)
 process_xray_config "###" "$VMESS_DB" "vmess"
-process_xray_config "#\&" "$VLESS_DB" "vless"
-process_xray_config "#\!" "$TROJAN_DB" "trojan"
+process_xray_config "#&" "$VLESS_DB" "vless"
+process_xray_config "#!" "$TROJAN_DB" "trojan"
 
 echo "=================================================="
 echo "Selesai! Seluruh data user berhasil di-ekstrak dari config aktif."
