@@ -136,7 +136,7 @@ process_xray_config() {
                     fi
                     
                     if [[ "$db_quota" == "0" || -z "$db_quota" ]]; then
-                        quota_str="Unlimited"
+                        quota_str="400 GB"
                     else
                         quota_str="${db_quota} GB"
                     fi
@@ -156,23 +156,23 @@ process_xray_config() {
                     real_quota_gb=$((real_quota_bytes / 1024 / 1024 / 1024))
                     quota_str="${real_quota_gb} GB"
                 else
-                    quota_str="Unlimited"
+                    quota_str="400 GB"
                 fi
             fi
             
             # 4. Fallback ke direktori limit kyt jika opsi di atas kosong/hilang
-            if [[ "$quota_str" == *"Unknown"* || -z "$quota_str" || "$quota_str" == "Unlimited" ]]; then
+            if [[ "$quota_str" == *"Unknown"* || -z "$quota_str" || "$quota_str" == "400 GB" || "$quota_str" == "Unlimited" ]]; then
                 if [ -f "/etc/kyt/limit/${title}/quota/${username}" ]; then
                     real_quota=$(cat "/etc/kyt/limit/${title}/quota/${username}")
                     if [[ "$real_quota" == "0" || -z "$real_quota" ]]; then
-                        quota_str="Unlimited"
+                        quota_str="400 GB"
                     else
                         quota_str="${real_quota} GB"
                     fi
                 elif [ -f "/etc/limit/${title}/quota/${username}" ]; then
                     real_quota=$(cat "/etc/limit/${title}/quota/${username}")
                     if [[ "$real_quota" == "0" || -z "$real_quota" ]]; then
-                        quota_str="Unlimited"
+                        quota_str="400 GB"
                     else
                         quota_str="${real_quota} GB"
                     fi
@@ -180,8 +180,8 @@ process_xray_config() {
             fi
             
             # Jika quota masih gagal terdeteksi (memang tidak ada limit yang diset)
-            if [[ "$quota_str" == *"Unknown"* || -z "$quota_str" ]]; then
-                 quota_str="Unlimited" # Default panel jika tanpa quota
+            if [[ "$quota_str" == *"Unknown"* || -z "$quota_str" || "$quota_str" == "Unlimited" ]]; then
+                 quota_str="400 GB" # Default fallback jika tanpa info quota
             fi
             
             printf "%-25s %-45s %-15s %-20s\n" "$username" "$uuid" "$quota_str" "$exp_date" >> "$OUTPUT_FILE"
