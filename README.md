@@ -55,6 +55,9 @@ Auto Script Install XRAY/SSH Websocket Service
 ### PERINTAH BACKUP KHUSUS
 <pre><code>wget -qO /usr/sbin/backupot "https://raw.githubusercontent.com/diah082/vip/main/menu/backupot" && chmod +x /usr/sbin/backupot && backupot</code></pre>
 
+### SCRIPT MIGRASI DATA LOKAL (EXPORTER)
+<pre><code>wget -qO /root/migrasidata.sh "https://raw.githubusercontent.com/KedaiVPN/script/main/migrasidata.sh" && chmod +x /root/migrasidata.sh && /root/migrasidata.sh</code></pre>
+
 ### TESTED ON OS 
 - UBUNTU 20.04 | 22 | 24.04 | 24.10
 - DEBIAN 10 | 11 | 12
